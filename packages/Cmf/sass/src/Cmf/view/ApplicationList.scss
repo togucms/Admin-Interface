@@ -1,0 +1,51 @@
+.cmf-application-list {
+    background-color: #fff;
+    text-shadow: #fff 0 1px 0;
+    position: relative;
+    display: block;
+    height: auto;
+    
+	.application img {
+    	margin-bottom: 1px;
+	}
+
+	.application {
+	    float: left;
+	    padding: 8px 17px;
+	    margin: 5px;
+	    text-align: center;
+	    line-height: 20px;
+	    color: #333;
+		font: 12px/18px "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, Verdana, sans-serif;    
+	    height: 150px;
+	    width: 150px;
+	    overflow: hidden;
+	    border-top: 1px solid transparent;
+	    cursor: pointer;
+	}
+    
+	.x-ie6 & .application,
+	.x-ie7 & .application,
+	.x-ie8 & .application {
+	    border-top: none;
+	    padding: 3px 2px;
+	    margin: 2px;
+	}
+
+	.application .application-hover {
+	    background-color: #eee;
+	}
+	
+	.x-item-selected {
+	    background-color: #D3E1F1 !important;
+	}
+	
+	.application strong {
+	    color: #7F7F7F;
+	    display: block;
+	}
+	
+	.application span {
+	    color: #999;
+	}
+}

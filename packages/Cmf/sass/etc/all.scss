@@ -1,0 +1,58 @@
+$base-color: rgba(58,58,58,1);
+$loadmask-opacity: 0.6;
+
+$toolbar-background-color: #b8b8b8;
+$toolbar-footer-background-color: #b8b8b8;
+
+$button-default-base-color: #3A3A3A;
+
+$button-default-color: #BBBBBB;
+$button-default-color-disabled: #CECECE;
+$button-default-color-focus: #FFFFFF;
+$button-default-color-over: #FFFFFF;
+$button-default-color-pressed: #FFFFFF;
+
+$button-default-border-color: #3A3A3A;
+$button-default-background-color: #3A3A3A;
+$button-default-background-color-disabled: #353535;
+$button-default-background-color-focus: #4B4B4B;
+$button-default-background-color-over: #4B4B4B;
+$button-default-background-color-pressed: #4B4B4B;
+
+$button-default-background-gradient: 'none';
+$button-default-background-gradient-focus: 'none';
+$button-default-background-gradient-over: 'none';
+$button-default-background-gradient-pressed: 'none';
+
+$button-toolbar-color: #BBBBBB;
+$button-toolbar-color-disabled: #CECECE;
+$button-toolbar-color-focus: #FFFFFF;
+$button-toolbar-color-over: #FFFFFF;
+$button-toolbar-color-pressed: #FFFFFF;
+
+$button-toolbar-border-color: #3A3A3A;
+$button-toolbar-background-color: #3A3A3A;
+$button-toolbar-background-color-disabled: #353535;
+$button-toolbar-background-color-focus: #4B4B4B;
+$button-toolbar-background-color-over: #4B4B4B;
+$button-toolbar-background-color-pressed: #4B4B4B;
+
+$button-toolbar-background-gradient: 'none';
+$button-toolbar-background-gradient-focus: 'none';
+$button-toolbar-background-gradient-over: 'none';
+$button-toolbar-background-gradient-pressed: 'none';
+
+$panel-body-background-color: #FAFAFA;
+$grid-row-cell-background-color: #FAFAFA;
+
+$button-default-glyph-opacity: 1;
+$panel-header-glyph-opacity: 1;
+$button-toolbar-glyph-opacity: 1;
+
+
+$fa-font-path: 'Cmf/fonts';
+@import "font-awesome-4.1.0/font-awesome.scss";
+
+
+/*$tree-elbow-width: 8px;
+$tree-elbow-spacing: 10px;*/
