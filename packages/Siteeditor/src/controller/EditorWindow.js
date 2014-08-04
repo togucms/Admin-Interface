@@ -43,12 +43,6 @@ Ext.define('Siteeditor.controller.EditorWindow', {
 		iframe : {
 			selector : 'uxiframe'
 		},		
-		urlField : {
-			selector: '#urlField',
-			listeners : {
-				urlselected : 'goToPage'
-			}
-		},
 		openPageButton: {
 			selector: '#openPage'
 		}
@@ -83,12 +77,10 @@ Ext.define('Siteeditor.controller.EditorWindow', {
 	
 	onHistoryChange : function(url, pageInfo) {
 		var me = this,
-			urlField = me.getUrlField(),
 			openPageButton = me.getOpenPageButton();
 		
 		openPageButton.href = url;
 		openPageButton.setParams({});
-		urlField && urlField.setValue(url);
 	},
 	
 	onHistoryPrevious : function() {
