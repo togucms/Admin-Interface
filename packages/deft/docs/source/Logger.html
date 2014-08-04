@@ -31,7 +31,6 @@ Open source under the [MIT License](http://en.wikipedia.org/wiki/MIT_License).
 
 Ext.define('Deft.log.Logger', {
   alternateClassName: ['Deft.Logger'],
-  requires: ['Deft.util.Function'],
   singleton: true,
 <span id='Deft-log-Logger-method-log'>  /**
 </span>  	* Logs a message with the specified priority.
@@ -112,7 +111,7 @@ Ext.define('Deft.log.Logger', {
       if (priority == null) {
         priority = 'info';
       }
-      if ((Ext.Logger != null) &amp;&amp; Deft.isFunction(Ext.Logger.log)) {
+      if ((Ext.Logger != null) &amp;&amp; Ext.isFunction(Ext.Logger.log)) {
         Ext.Logger.log(message, priority);
       }
     };

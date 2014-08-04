@@ -10,13 +10,10 @@ Open source under the [MIT License](http://en.wikipedia.org/wiki/MIT_License).
 */
 
 Ext.define('Deft.mvc.ComponentSelector', {
-  requires: ['Ext.ComponentQuery', 'Deft.log.Logger', 'Deft.mvc.ComponentSelectorListener', 'Deft.util.Function'],
+  requires: ['Ext.ComponentQuery', 'Deft.log.Logger', 'Deft.mvc.ComponentSelectorListener'],
   constructor: function(config) {
     var eventName, fn, listener, options, scope, _ref;
     Ext.apply(this, config);
-    if (!this.live) {
-      this.components = this.selector != null ? Ext.ComponentQuery.query(this.selector, this.view) : [this.view];
-    }
     this.selectorListeners = [];
     if (Ext.isObject(this.listeners)) {
       _ref = this.listeners;
@@ -36,10 +33,10 @@ Ext.define('Deft.mvc.ComponentSelector', {
             delete options.scope;
           }
         }
-        if (Ext.isString(fn) && Deft.isFunction(scope[fn])) {
+        if (Ext.isString(fn) && Ext.isFunction(scope[fn])) {
           fn = scope[fn];
         }
-        if (!Deft.isFunction(fn)) {
+        if (!Ext.isFunction(fn)) {
           Ext.Error.raise({
             msg: "Error adding '" + eventName + "' listener: the specified handler '" + fn + "' is not a Function or does not exist."
           });
@@ -69,7 +66,7 @@ Ext.define('Deft.mvc.ComponentSelector', {
         msg: "Error adding '" + eventName + "' listener: an existing listener for the specified function was already registered for '" + this.selector + "."
       });
     }
-    Deft.Logger.log("Adding '" + eventName + "' listener to '" + this.selector + "'.");
+    Deft.Logger.log("Adding '" + eventName + "' listener to '" + (this.selector || 'view') + "'.");
     selectorListener = Ext.create('Deft.mvc.ComponentSelectorListener', {
       componentSelector: this,
       eventName: eventName,

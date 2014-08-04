@@ -6,7 +6,6 @@
  */
 Ext.Loader.addClassPathMappings({
   "Deft": "../../../deft/src/js",
-  "Deft.Component": "../../../deft/src/js/event/LiveEventBus.js",
   "Deft.InjectableComponent": "../../../deft/src/js/ioc/Injector.js",
   "Ext": "../../../../ext/src",
   "Ext.Msg": "../../../../ext/src/window/MessageBox.js",
@@ -33,10 +32,12 @@ Ext.Loader.addClassPathMappings({
   "Shared.view.Window": "../../../Shared/src/view/Window.js"
 });
 Ext.ClassManager.addNameAlternateMappings({
-  "Deft.Component": [],
   "Deft.InjectableComponent": [],
   "Deft.core.Class": [
     "Deft.Class"
+  ],
+  "Deft.core.Component": [
+    "Deft.Component"
   ],
   "Deft.event.LiveEventBus": [
     "Deft.LiveEventBus"
@@ -64,9 +65,6 @@ Ext.ClassManager.addNameAlternateMappings({
   ],
   "Deft.promise.Chain": [
     "Deft.Chain"
-  ],
-  "Deft.promise.Consequence": [
-    "Deft.Consequence"
   ],
   "Deft.promise.Deferred": [
     "Deft.Deferred"
@@ -179,9 +177,9 @@ Ext.ClassManager.addNameAlternateMappings({
   "Shared.view.Window": []
 });
 Ext.ClassManager.addNameAliasMappings({
-  "Deft.Component": [],
   "Deft.InjectableComponent": [],
   "Deft.core.Class": [],
+  "Deft.core.Component": [],
   "Deft.event.LiveEventBus": [],
   "Deft.event.LiveEventListener": [],
   "Deft.ioc.DependencyProvider": [],
@@ -195,7 +193,6 @@ Ext.ClassManager.addNameAliasMappings({
   "Deft.mvc.Observer": [],
   "Deft.mvc.ViewController": [],
   "Deft.promise.Chain": [],
-  "Deft.promise.Consequence": [],
   "Deft.promise.Deferred": [],
   "Deft.promise.Promise": [],
   "Deft.promise.Resolver": [],

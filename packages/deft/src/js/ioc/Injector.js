@@ -110,7 +110,7 @@ Factory function dependency providers can be configured as singletons or prototy
 
 Ext.define('Deft.ioc.Injector', {
   alternateClassName: ['Deft.Injector'],
-  requires: ['Ext.Component', 'Deft.log.Logger', 'Deft.ioc.DependencyProvider', 'Deft.util.Function'],
+  requires: ['Ext.Component', 'Deft.log.Logger', 'Deft.ioc.DependencyProvider'],
   singleton: true,
   constructor: function() {
     this.providers = {};
@@ -228,7 +228,7 @@ Ext.define('Deft.ioc.Injector', {
     } else {
       if ((Ext.getVersion('extjs') != null) && targetInstance instanceof Ext.ClassManager.get('Ext.Component')) {
         targetInstance.injectConfig = injectConfig;
-      } else if (Deft.isFunction(targetInstance.initConfig)) {
+      } else if (Ext.isFunction(targetInstance.initConfig)) {
         originalInitConfigFunction = targetInstance.initConfig;
         targetInstance.initConfig = function(config) {
           var result;

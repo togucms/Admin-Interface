@@ -30,50 +30,131 @@ Ext.define('Deft.event.LiveEventListener', {
   alternateClassName: ['Deft.LiveEventListener'],
   requires: ['Ext.ComponentQuery'],
 <span id='Deft-event-LiveEventListener-method-constructor'>  constructor: function(config) {
-</span>    var component, components, _i, _len;
-    Ext.apply(this, config);
-    this.components = [];
-    components = Ext.ComponentQuery.query(this.selector, this.container);
-    for (_i = 0, _len = components.length; _i &lt; _len; _i++) {
-      component = components[_i];
-      this.components.push(component);
-      component.on(this.eventName, this.fn, this.scope, this.options);
+</span>    Ext.apply(this, config);
+    if (this.options === null) {
+      this.options = {};
     }
+    this.components = [];
   },
 <span id='Deft-event-LiveEventListener-method-destroy'>  destroy: function() {
 </span>    var component, _i, _len, _ref;
     _ref = this.components;
     for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
       component = _ref[_i];
-      component.un(this.eventName, this.fn, this.scope);
+      this.unregister(component, true);
     }
     this.components = null;
   },
-<span id='Deft-event-LiveEventListener-method-register'>  register: function(component) {
-</span>    if (this.matches(component)) {
-      this.components.push(component);
-      component.on(this.eventName, this.fn, this.scope, this.options);
+<span id='Deft-event-LiveEventListener-method-overrideComponent'>  /**
+</span>  	* Overrides the fireEvent method, so the event is fired also in the custom live handlers
+  */
+
+  overrideComponent: function(component) {
+    var oldFireAction, oldFireEvent;
+    if (component.liveHandlers !== void 0) {
+      return;
     }
+    component.liveHandlers = {};
+    if (component.fireEventArgs) {
+      oldFireEvent = component.fireEventArgs;
+      component.fireEventArgs = function(event, params) {
+        var args, handler, _i, _len, _ref;
+        if (oldFireEvent.apply(this, arguments) === false) {
+          return false;
+        }
+        if (this.liveHandlers[event] === void 0) {
+          return;
+        }
+        args = [event].concat(Array.prototype.slice.call(params || [], 0));
+        _ref = this.liveHandlers[event];
+        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          handler = _ref[_i];
+          if (handler.observable.matches(this) &amp;&amp; handler.fireEvent.apply(handler, args) === false) {
+            return false;
+          }
+        }
+      };
+    } else {
+      oldFireEvent = component.fireEvent;
+      component.fireEvent = function(event) {
+        var handler, _i, _len, _ref;
+        if (oldFireEvent.apply(this, arguments) === false) {
+          return false;
+        }
+        if (this.liveHandlers[event] === void 0) {
+          return;
+        }
+        _ref = this.liveHandlers[event];
+        for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+          handler = _ref[_i];
+          if (handler.observable.matches(this) &amp;&amp; handler.fireEvent.apply(handler, arguments) === false) {
+            return false;
+          }
+        }
+      };
+    }
+    if (!component.fireAction) {
+      return;
+    }
+    oldFireAction = component.fireAction;
+    component.fireAction = function(event, params) {
+      var args, handler, _i, _len, _ref;
+      if (this.liveHandlers[event] === void 0) {
+        return oldFireAction.apply(this, arguments);
+      }
+      args = [event].concat(Array.prototype.slice.call(params || [], 0));
+      _ref = this.liveHandlers[event];
+      for (_i = 0, _len = _ref.length; _i &lt; _len; _i++) {
+        handler = _ref[_i];
+        if (handler.observable.matches(this) &amp;&amp; handler.fireEvent.apply(handler, args) === false) {
+          return false;
+        }
+      }
+    };
   },
-<span id='Deft-event-LiveEventListener-method-unregister'>  unregister: function(component) {
+<span id='Deft-event-LiveEventListener-method-handle'>  handle: function() {
+</span>    return this.fn.apply(this.scope, arguments);
+  },
+<span id='Deft-event-LiveEventListener-method-emptyFn'>  emptyFn: function() {},
+</span><span id='Deft-event-LiveEventListener-method-register'>  register: function(component) {
+</span>    var event, index;
+    index = Ext.Array.indexOf(this.components, component);
+    if (this.selector === null &amp;&amp; component !== this.container || index !== -1) {
+      return;
+    }
+    this.components.push(component);
+    this.overrideComponent(component);
+    if (component.liveHandlers[this.eventName] === void 0) {
+      component.liveHandlers[this.eventName] = [];
+    }
+    event = Ext.create('Ext.util.Observable');
+    event.observable = this;
+    event.addListener(this.eventName, this.handle, this, this.options);
+    component.on(this.eventName, this.emptyFn, this, this.options);
+    component.liveHandlers[this.eventName].push(event);
+  },
+<span id='Deft-event-LiveEventListener-method-unregister'>  unregister: function(component, destroying) {
 </span>    var index;
+    if (destroying == null) {
+      destroying = false;
+    }
     index = Ext.Array.indexOf(this.components, component);
     if (index !== -1) {
-      component.un(this.eventName, this.fn, this.scope);
-      Ext.Array.erase(this.components, index, 1);
+      component.un(this.eventName, Ext.emptyFn, this, this.options);
+      Ext.Array.remove(component.liveHandlers[this.eventName], this);
+      if (destroying === false) {
+        Ext.Array.erase(this.components, index, 1);
+      }
     }
   },
 <span id='Deft-event-LiveEventListener-method-matches'>  matches: function(component) {
-</span>    if (this.selector === null &amp;&amp; this.container === component) {
+</span>    if (this.selector === null) {
+      return component === this.container;
+    }
+    if (this.container === null) {
       return true;
     }
-    if (this.container === null &amp;&amp; Ext.Array.contains(Ext.ComponentQuery.query(this.selector), component)) {
-      return true;
-    }
-    if (component.isDescendantOf(this.container) &amp;&amp; Ext.Array.contains(this.container.query(this.selector), component)) {
-      return true;
-    }
-    return false;
+    return component.isDescendantOf(this.container);
   }
 });
 </pre>

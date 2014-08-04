@@ -93,10 +93,11 @@ Ext.define( 'Deft.mvc.Observer',
 	###
 	constructor: ( config ) ->
 		@listeners = []
-
+		
 		host = config?.host
 		target = config?.target
 		events = config?.events
+		@scope = config?.scope
 
 		if host and target and ( @isPropertyChain( target ) or @isTargetObservable( host, target ) )
 
@@ -107,7 +108,7 @@ Ext.define( 'Deft.mvc.Observer',
 				for handler in handlerArray
 
 					# Default scope is the object hosting the Observer.
-					scope = host
+					scope = @scope || host
 
 					# Default options is null
 					options = null
@@ -139,11 +140,14 @@ Ext.define( 'Deft.mvc.Observer',
 	isTargetObservable: ( host, target ) ->
 		hostTarget = @locateTarget( host, target )
 		return false if not hostTarget?
-
+		
+		hostTargetClass = Ext.ClassManager.getClass( hostTarget )
+		if Deft.Class.extendsClass('Ext.dom.Element', hostTargetClass)
+			return true
+		
 		if hostTarget.isObservable? or hostTarget.mixins?.observable?
 			return true
 		else
-			hostTargetClass = Ext.ClassManager.getClass( hostTarget )
 			return ( Deft.Class.extendsClass( hostTargetClass, 'Ext.util.Observable' ) or Deft.Class.extendsClass( hostTargetClass, 'Ext.mixin.Observable' ) )
 
 	###*
@@ -151,7 +155,7 @@ Ext.define( 'Deft.mvc.Observer',
 	* Checks for both host[ target ], and host.getTarget().
 	###
 	locateTarget: ( host, target ) ->
-		if Deft.isFunction( host[ 'get' + Ext.String.capitalize( target ) ] )
+		if Ext.isFunction( host[ 'get' + Ext.String.capitalize( target ) ] )
 			result = host[ 'get' + Ext.String.capitalize( target ) ].call( host )
 			return result
 		else if host?[ target ]?
@@ -171,7 +175,7 @@ Ext.define( 'Deft.mvc.Observer',
 	* If necessary, recurse down a property chain to locate the final target object for the event listener.
 	###
 	locateReferences: ( host, target, handler ) ->
-		handlerHost = host
+		handlerHost = @scope || host
 
 		if @isPropertyChain( target )
 			propertyChain = @parsePropertyChain( host, target )
@@ -179,9 +183,9 @@ Ext.define( 'Deft.mvc.Observer',
 			host = propertyChain.host
 			target = propertyChain.target
 
-		if Deft.isFunction( handler )
+		if Ext.isFunction( handler )
 			return { target: @locateTarget( host, target ), handler: handler  }
-		else if Deft.isFunction( handlerHost[ handler ] )
+		else if Ext.isFunction( handlerHost[ handler ] )
 			return { target: @locateTarget( host, target ), handler: handlerHost[ handler ]  }
 		else
 			return null

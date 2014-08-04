@@ -24,60 +24,96 @@ Ext.define( 'Deft.mixin.Controllable',
 ,
 	->
 		if Ext.getVersion( 'extjs' ) and Ext.getVersion( 'core' ).isLessThan( '4.1.0' )
-			# Ext JS 4.0
-			createControllerInterceptor = ->
-				return ( config = {} ) ->
-					if @ instanceof Ext.ClassManager.get( 'Ext.Component' ) and not @$controlled
-						try
-							controller = Ext.create( @controller, config.controllerConfig || @controllerConfig || {} )
-						catch error
-							# NOTE: Ext.Logger.error() will throw an error, masking the error we intend to rethrow, so warn instead.
-							Deft.Logger.warn( "Error initializing view controller: an error occurred while creating an instance of the specified controller: '#{ @controller }'." )
-							throw error
-						
-						if @getController is undefined
-							@getController = ->
-								return controller
-						
-						@$controlled = true
-						
-						@callOverridden( arguments )
-						
-						controller.controlView( @ )
-						
-						return @
-					
-					return @callOverridden( arguments )
+			callParentMethod = "callOverridden"
 		else
 			# Sencha Touch 2.0+, Ext JS 4.1+
-			createControllerInterceptor = ->
-				return ( config = {} ) ->
-					if @ instanceof Ext.ClassManager.get( 'Ext.Component' ) and not @$controlled
-						try
-							controller = Ext.create( @controller, config.controllerConfig || @controllerConfig || {} )
-						catch error
-							# NOTE: Ext.Logger.error() will throw an error, masking the error we intend to rethrow, so warn instead.
-							Deft.Logger.warn( "Error initializing view controller: an error occurred while creating an instance of the specified controller: '#{ @controller }'." )
-							throw error
-					
-						if @getController is undefined
-							@getController = ->
-								return controller
-					
-						@$controlled = true
-					
-						@callParent( arguments )
-					
-						controller.controlView( @ )
-					
-						return @
+			callParentMethod = "callParent"
+		
+		createControllerInterceptor = () ->
+			return ( config = {} ) ->
+				if not @ instanceof Ext.ClassManager.get( 'Ext.Component' ) or @$controlled
+					return @[ callParentMethod ]( arguments )
 				
-					return @callParent( arguments )
+				controllers = {}
+				
+				for className in @$controllers
+					try
+						controller = Ext.create( className, config.controllerConfig || @$controllerConfig[ className ] )
+						controllers[ className ] = controller
+						controller.controlView( @ )
+					catch error
+						# NOTE: Ext.Logger.error() will throw an error, masking the error we intend to rethrow, so warn instead.
+						Deft.Logger.warn( "Error initializing view controller: an error occurred while creating an instance of the specified controller: '#{ @controller }'." )
+						throw error
 			
+				defaultController = @$controllers[ 0 ]
+				
+				if @getController is undefined
+					@getController = ( className = defaultController ) ->
+						return controllers[ className ]
+			
+				@$controlled = true
+				
+				return @[ callParentMethod ]( arguments )
+			
+		
+		if Ext.cmd
+			oldDerive = Ext.cmd.derive
+			Ext.cmd.derive = ( className, base, data, enumerableMembers, xtypes, xtypesChain, xtypeMap, aliases, mixins, names, createdFn ) ->
+				if ! data.controller
+					oldDerive.apply( @, arguments )
+					return
+				
+				data.$controllers = [ data.controller ]
+				data.$controllerConfig = {}
+				data.$controllerConfig[ data.controller ] = data.controllerConfig || {}
+				
+				oldCreated = createdFn
+				createdFn = ( Class ) ->
+					Class.override(
+						constructor: createControllerInterceptor()
+					)
+					
+					if oldCreated
+						return oldCreated.apply( @, arguments )
+						
+					return
+				
+				oldExtended = data.onClassExtended
+				data.onClassExtended = ( Class, data, hooks ) ->
+					# Override the constructor for this class with a controller interceptor.
+					Deft.Class.hookOnClassCreated( hooks, ( Class ) ->
+						Class.override(
+							constructor: createControllerInterceptor()
+						)
+						
+						data.$controllers ?= []
+						data.$controllerConfig ?= {}
+						
+						for controller in Class.superclass.$controllers || []
+							data.$controllers.push(controller)
+						
+						Ext.applyIf( data.$controllerConfig, Class.superclass.$controllerConfig )
+						
+						return
+					)
+					
+					if oldExtended 
+						return oldExtended.apply( @, arguments )
+					
+					return
+					
+				oldDerive.apply( @, arguments )
+					
 		
 		Deft.Class.registerPreprocessor( 
 			'controller'
 			( Class, data, hooks, callback ) ->
+				data.$controllers = [ data.controller ]
+				
+				data.$controllerConfig = {}
+				data.$controllerConfig[ data.controller ] = data.controllerConfig || {}
+
 				# Override the constructor for this class with a controller interceptor.
 				Deft.Class.hookOnClassCreated( hooks, ( Class ) ->
 					Class.override(
@@ -93,6 +129,15 @@ Ext.define( 'Deft.mixin.Controllable',
 						Class.override(
 							constructor: createControllerInterceptor()
 						)
+						
+						data.$controllers ?= []
+						data.$controllerConfig ?= {}
+						
+						for controller in Class.superclass.$controllers || []
+							data.$controllers.push(controller)
+						
+						Ext.applyIf( data.$controllerConfig, Class.superclass.$controllerConfig )
+						
 						return
 					)
 					return

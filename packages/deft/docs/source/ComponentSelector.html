@@ -27,13 +27,10 @@ Open source under the [MIT License](http://en.wikipedia.org/wiki/MIT_License).
 */
 
 Ext.define('Deft.mvc.ComponentSelector', {
-  requires: ['Ext.ComponentQuery', 'Deft.log.Logger', 'Deft.mvc.ComponentSelectorListener', 'Deft.util.Function'],
+  requires: ['Ext.ComponentQuery', 'Deft.log.Logger', 'Deft.mvc.ComponentSelectorListener'],
 <span id='Deft-mvc-ComponentSelector-method-constructor'>  constructor: function(config) {
 </span>    var eventName, fn, listener, options, scope, _ref;
     Ext.apply(this, config);
-    if (!this.live) {
-      this.components = this.selector != null ? Ext.ComponentQuery.query(this.selector, this.view) : [this.view];
-    }
     this.selectorListeners = [];
     if (Ext.isObject(this.listeners)) {
       _ref = this.listeners;
@@ -53,10 +50,10 @@ Ext.define('Deft.mvc.ComponentSelector', {
             delete options.scope;
           }
         }
-        if (Ext.isString(fn) &amp;&amp; Deft.isFunction(scope[fn])) {
+        if (Ext.isString(fn) &amp;&amp; Ext.isFunction(scope[fn])) {
           fn = scope[fn];
         }
-        if (!Deft.isFunction(fn)) {
+        if (!Ext.isFunction(fn)) {
           Ext.Error.raise({
             msg: &quot;Error adding '&quot; + eventName + &quot;' listener: the specified handler '&quot; + fn + &quot;' is not a Function or does not exist.&quot;
           });
@@ -86,7 +83,7 @@ Ext.define('Deft.mvc.ComponentSelector', {
         msg: &quot;Error adding '&quot; + eventName + &quot;' listener: an existing listener for the specified function was already registered for '&quot; + this.selector + &quot;.&quot;
       });
     }
-    Deft.Logger.log(&quot;Adding '&quot; + eventName + &quot;' listener to '&quot; + this.selector + &quot;'.&quot;);
+    Deft.Logger.log(&quot;Adding '&quot; + eventName + &quot;' listener to '&quot; + (this.selector || 'view') + &quot;'.&quot;);
     selectorListener = Ext.create('Deft.mvc.ComponentSelectorListener', {
       componentSelector: this,
       eventName: eventName,

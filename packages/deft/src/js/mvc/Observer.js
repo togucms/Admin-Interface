@@ -113,6 +113,7 @@ Ext.define('Deft.mvc.Observer', {
     host = config != null ? config.host : void 0;
     target = config != null ? config.target : void 0;
     events = config != null ? config.events : void 0;
+    this.scope = config != null ? config.scope : void 0;
     if (host && target && (this.isPropertyChain(target) || this.isTargetObservable(host, target))) {
       for (eventName in events) {
         handlerArray = events[eventName];
@@ -121,7 +122,7 @@ Ext.define('Deft.mvc.Observer', {
         }
         for (_i = 0, _len = handlerArray.length; _i < _len; _i++) {
           handler = handlerArray[_i];
-          scope = host;
+          scope = this.scope || host;
           options = null;
           if (Ext.isObject(handler)) {
             options = Ext.clone(handler);
@@ -167,10 +168,13 @@ Ext.define('Deft.mvc.Observer', {
     if (hostTarget == null) {
       return false;
     }
+    hostTargetClass = Ext.ClassManager.getClass(hostTarget);
+    if (Deft.Class.extendsClass('Ext.dom.Element', hostTargetClass)) {
+      return true;
+    }
     if ((hostTarget.isObservable != null) || (((_ref = hostTarget.mixins) != null ? _ref.observable : void 0) != null)) {
       return true;
     } else {
-      hostTargetClass = Ext.ClassManager.getClass(hostTarget);
       return Deft.Class.extendsClass(hostTargetClass, 'Ext.util.Observable') || Deft.Class.extendsClass(hostTargetClass, 'Ext.mixin.Observable');
     }
   },
@@ -181,7 +185,7 @@ Ext.define('Deft.mvc.Observer', {
 
   locateTarget: function(host, target) {
     var result;
-    if (Deft.isFunction(host['get' + Ext.String.capitalize(target)])) {
+    if (Ext.isFunction(host['get' + Ext.String.capitalize(target)])) {
       result = host['get' + Ext.String.capitalize(target)].call(host);
       return result;
     } else if ((host != null ? host[target] : void 0) != null) {
@@ -205,7 +209,7 @@ Ext.define('Deft.mvc.Observer', {
 
   locateReferences: function(host, target, handler) {
     var handlerHost, propertyChain;
-    handlerHost = host;
+    handlerHost = this.scope || host;
     if (this.isPropertyChain(target)) {
       propertyChain = this.parsePropertyChain(host, target);
       if (!propertyChain) {
@@ -214,12 +218,12 @@ Ext.define('Deft.mvc.Observer', {
       host = propertyChain.host;
       target = propertyChain.target;
     }
-    if (Deft.isFunction(handler)) {
+    if (Ext.isFunction(handler)) {
       return {
         target: this.locateTarget(host, target),
         handler: handler
       };
-    } else if (Deft.isFunction(handlerHost[handler])) {
+    } else if (Ext.isFunction(handlerHost[handler])) {
       return {
         target: this.locateTarget(host, target),
         handler: handlerHost[handler]

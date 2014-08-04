@@ -15,7 +15,7 @@ Open source under the [MIT License](http://en.wikipedia.org/wiki/MIT_License).
 
 Ext.define('Deft.promise.Chain', {
   alternateClassName: ['Deft.Chain'],
-  requires: ['Deft.promise.Promise', 'Deft.util.Function'],
+  requires: ['Deft.promise.Promise'],
   statics: {
     /**
     		* Execute an Array (or {@link Deft.promise.Promise Promise} of an Array) of functions sequentially.
@@ -34,7 +34,7 @@ Ext.define('Deft.promise.Chain', {
       }
       args = [].slice.call(arguments, 2);
       return Deft.Promise.reduce(fns, function(results, fn) {
-        if (!Deft.isFunction(fn)) {
+        if (!Ext.isFunction(fn)) {
           throw new Error('Invalid parameter: expected a function.');
         }
         return Deft.Promise.when(fn.apply(scope, args)).then(function(result) {
