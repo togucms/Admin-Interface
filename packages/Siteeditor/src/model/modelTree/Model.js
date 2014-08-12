@@ -67,6 +67,10 @@ Ext.define('Siteeditor.model.modelTree.Model', {
 			field = fields[i];
 			
 			if(field.model.type == "reference") {
+				if(field.form && field.form.exclude === true) {
+					continue
+				}
+				
 				className = 'Siteeditor.model.modelTree.List';
 				if(field.id == "nextSection") {
 					className = 'Siteeditor.model.modelTree.SectionList';
