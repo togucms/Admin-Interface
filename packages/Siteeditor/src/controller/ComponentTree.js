@@ -205,10 +205,13 @@ Ext.define('Siteeditor.controller.ComponentTree', {
 	},
 	
 	onModelClick: function(record, event) {
-		if(event.originalEvent.handled === true) {
+		if(event.originalEvent && event.originalEvent.handled === true) {
 			return;
 		}
-		event.originalEvent.handled = true;
+		if(event.originalEvent) {
+			event.originalEvent.handled = true;
+		}
+			
 		var selected = this.getSelected();
 		if(selected && selected.id == record.id) {
 			event.stopPropagation();
