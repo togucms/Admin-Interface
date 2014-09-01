@@ -99,10 +99,7 @@ Ext.define('Siteeditor.model.modelTree.List', {
 			newList = [];
 
 		for(; i < ln; i++) {
-			newList.push({
-				id: list[i].id,
-				type: list[i].type
-			});
+			newList.push(list[i].id);
 		}
 		this.fireEvent('listchanged', this.listConfig.id, newList);
 	},

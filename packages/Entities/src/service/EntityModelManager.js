@@ -122,7 +122,6 @@ Ext.define('Entities.service.EntityModelManager', {
 	
 	saveEntity: function(record) {
 		var deferred = Ext.create('Deft.Deferred');
-		
 		record.save({
 			callback: function(records, operation, success) {
 				if(success) {
